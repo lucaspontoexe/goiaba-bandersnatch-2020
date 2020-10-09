@@ -9,7 +9,7 @@
       "nextSegmentIn": 12133,
       "options": [
         { "name": "Pegar a goiaba", "goto": "comprei_goiaba" },
-        { "name": "Pegar o ônibus", "goto": "peguei_onibus" }
+        { "name": "Pegar o ônibus", "goto": "comprei_onibus" }
       ]
     },
     {
