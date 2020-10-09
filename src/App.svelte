@@ -40,14 +40,19 @@
     video.src = window.URL.createObjectURL(mediaSource);
   });
 
+  $: {console.log(appState)}
+
   function start() {
     appState = "INIT_SEGMENT";
+    lastTime = performance.now();
+    lastSegmentMark = performance.now();
     video.play();
     loop();
-  }
+}
 
-  function loop() {
-    currentTime = video.currentTime * 1000; // seconds or miliseconds
+function loop() {
+    window.requestAnimationFrame(loop);
+    currentTime = performance.now(); // seconds or miliseconds
     switch (appState) {
       case "INIT_SEGMENT":
         lastTime = currentTime;
@@ -59,13 +64,14 @@
         currentSegment = sample.segments.find(
           (s) => s.name === chosenOption.goto
         );
+        console.log('current/next file is', currentSegment.files[0])
         break;
 
       case "WAIT_FOR_PROMPT":
         if (currentTime - lastTime >= currentSegment.promptIn) {
           appState = "ONGOING_PROMPT";
           console.log("decision prompt is here");
-          lastTime = video.currentTime;
+          lastTime = performance.now();
         }
         break;
 
@@ -75,7 +81,8 @@
           console.log("timeout, picking random option");
           chosenOption =
             currentSegment.options[
-              Math.floor(Math.random() * currentSegment.options.length)
+            //   Math.floor(Math.random() * currentSegment.options.length)
+            1
             ];
           appState = "APPEND_NEXT_SEG";
         }
@@ -86,13 +93,17 @@
         if (sourceBuffer.updating || sourceBuffer.buffered.length <= 0) return;
         // Append the video segments and adjust the timestamp offset
         // forward
-
+        
         // function addBuffer?
         sourceBuffer.timestampOffset = sourceBuffer.buffered.end(
           sourceBuffer.buffered.length - 1
         );
         // TODO: append multiple files
-        sourceBuffer.appendBuffer(buffers.get(currentSegment.files[0]));
+        const nextSegment = sample.segments.find(
+          (s) => s.name === chosenOption.goto
+        );
+        console.log('appending', nextSegment.files[0])
+        sourceBuffer.appendBuffer(buffers.get(nextSegment.files[0]));
         // on append() loop end
         appState = "WAITING_FOR_NEXT_SEG";
         break;
@@ -106,7 +117,6 @@
         console.log("unrecognized state: ", appState);
         break;
     }
-    window.requestAnimationFrame(loop);
   }
 </script>
 
