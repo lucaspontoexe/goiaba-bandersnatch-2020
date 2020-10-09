@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "segments": [
+    {
+      "name": "intro",
+      "files": ["seg1.webm"],
+      "promptIn": 7700,
+      "decisionTimeout": 3833,
+      "nextSegmentIn": 12133,
+      "options": [
+        { "name": "Pegar a goiaba", "goto": "comprei_goiaba" },
+        { "name": "Pegar o ônibus", "goto": "peguei_onibus" }
+      ]
+    },
+    {
+      "name": "comprei_goiaba",
+      "files": ["seg2a.webm", "seg3.webm"],
+      "promptIn": 8833,
+      "decisionTimeout": 3700,
+      "nextSegmentIn": 12833,
+      "options": [
+        { "name": "Atender", "goto": "final1" },
+        { "name": "Ignorar", "goto": "final2" }
+      ]
+    },
+    {
+      "name": "comprei_onibus",
+      "files": ["seg2b.webm", "seg3.webm"],
+      "promptIn": 8833,
+      "decisionTimeout": 3700,
+      "nextSegmentIn": 12833,
+      "options": [
+        { "name": "Atender", "goto": "final3" },
+        { "name": "Ignorar", "goto": "final4" }
+      ]
+    },
+    { "name": "final1", "files": ["seg4a.webm"], "endIn": 10000 },
+    { "name": "final2", "files": ["seg4b.webm"], "endIn": 10000 },
+    { "name": "final3", "files": ["seg4c.webm"], "endIn": 10000 },
+    { "name": "final4", "files": ["seg4d.webm"], "endIn": 10000 }
+  ]
+}
