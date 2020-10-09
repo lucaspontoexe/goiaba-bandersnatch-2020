@@ -20,7 +20,7 @@ let currentSegment = sample.segments[0];
 let lastTime = 0;
 let lastSegmentMark = 0;
 let appState = "LOADING"; // async ya know (ready?)
-let chosenOption = {name: '', goto: ''};
+let chosenOption = {name: '__empty__', goto: ''};
 
 // load buffers when source is open
 mediaSource.addEventListener("sourceopen", async () => {
@@ -53,9 +53,10 @@ function loop() {
       console.log('loop: init segment')
       lastTime = currentTime;
       lastSegmentMark = currentTime;
-
+    console.log(chosenOption)
       // only set variables if we're not in the first iteration
       if (chosenOption.name === "__empty__") return;
+
       currentSegment = sample.segments.find(
         (s) => s.name === chosenOption.goto
       );
@@ -123,3 +124,5 @@ function loop() {
 debug:
 <br/>
 {appState}
+<br>
+{JSON.stringify(currentSegment)}
