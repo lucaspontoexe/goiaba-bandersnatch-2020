@@ -2,6 +2,9 @@
   import sample from "./goiabaSegments.json";
   import fileDownload from "./fileDownload";
   import { onMount } from "svelte";
+
+  type appStates = "LOADING"| "READY"| "INIT_SEGMENT"| "WAIT_FOR_PROMPT"| "ONGOING_PROMPT"| "APPEND_NEXT_SEG"| "WAITING_FOR_NEXT_SEG"| "WAITING_FOR_END"| "END";
+
   // nodes
   let video: HTMLMediaElement;
   let button: HTMLElement;
@@ -12,6 +15,7 @@
   const buffers = new Map();
   let mediaSource = new MediaSource();
   let sourceBuffer: SourceBuffer;
+  let loopID: number;
 
   // state
   let currentSegment = sample.segments[0];
@@ -19,7 +23,7 @@
   let lastTime = 0;
   let lastSegmentMark = 0;
   let appendThisBufferNumber = 0;
-  let appState = "LOADING"; // async ya know (ready?)
+  let appState: appStates = "LOADING"; // async ya know (ready?)
   let chosenOption = { name: "__empty__", goto: "" };
 
   // load buffers when source is open
@@ -52,19 +56,22 @@
 }
 
 function loop() {
-    window.requestAnimationFrame(loop);
+    loopID = window.requestAnimationFrame(loop);
     currentTime = performance.now(); // seconds or miliseconds
     switch (appState) {
       case "INIT_SEGMENT":
         lastTime = currentTime;
         lastSegmentMark = currentTime;
+        
         appState = "WAIT_FOR_PROMPT";
         // only set variables if we're not in the first iteration
         if (chosenOption.name === "__empty__") return;
-
+        
         currentSegment = sample.segments.find(
           (s) => s.name === chosenOption.goto
-        );
+          );
+        
+        if (currentSegment.endIn) appState = "WAITING_FOR_END";
         console.log('current/next file is', currentSegment.files[0])
         break;
 
@@ -122,6 +129,16 @@ function loop() {
         if (currentTime - lastSegmentMark >= currentSegment.nextSegmentIn)
           appState = "INIT_SEGMENT";
         break;
+
+      case "WAITING_FOR_END":
+      if (currentTime - lastSegmentMark >= currentSegment.endIn)
+      appState = "END";
+      break; 
+      
+      case "END":
+        mediaSource.endOfStream();
+        cancelAnimationFrame(loopID)
+      break;
 
       default:
         console.log("unrecognized state: ", appState);
