@@ -18,6 +18,7 @@
   let currentTime = 0;
   let lastTime = 0;
   let lastSegmentMark = 0;
+  let appendThisBufferNumber = 0;
   let appState = "LOADING"; // async ya know (ready?)
   let chosenOption = { name: "__empty__", goto: "" };
 
@@ -90,7 +91,7 @@ function loop() {
 
       case "APPEND_NEXT_SEG":
         // return if we can't update right now;
-        if (sourceBuffer.updating || sourceBuffer.buffered.length <= 0) return;
+        if (sourceBuffer.updating || sourceBuffer.buffered.length <= 0) break;
         // Append the video segments and adjust the timestamp offset
         // forward
         
@@ -98,14 +99,23 @@ function loop() {
         sourceBuffer.timestampOffset = sourceBuffer.buffered.end(
           sourceBuffer.buffered.length - 1
         );
+
         // TODO: append multiple files
         const nextSegment = sample.segments.find(
           (s) => s.name === chosenOption.goto
         );
-        console.log('appending', nextSegment.files[0])
-        sourceBuffer.appendBuffer(buffers.get(nextSegment.files[0]));
-        // on append() loop end
-        appState = "WAITING_FOR_NEXT_SEG";
+
+        if (nextSegment.files[appendThisBufferNumber]) {
+          console.log('appending', nextSegment.files[appendThisBufferNumber])
+          sourceBuffer.appendBuffer(buffers.get(nextSegment.files[appendThisBufferNumber]));
+          appendThisBufferNumber++;
+          // on append() loop end
+        }
+        else {
+          console.log('done appending')
+          appendThisBufferNumber = 0;
+          appState = "WAITING_FOR_NEXT_SEG";
+        }
         break;
 
       case "WAITING_FOR_NEXT_SEG":
