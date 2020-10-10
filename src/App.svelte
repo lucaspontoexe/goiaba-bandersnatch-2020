@@ -3,7 +3,16 @@
   import fileDownload from "./fileDownload";
   import { onMount } from "svelte";
 
-  type appStates = "LOADING"| "READY"| "INIT_SEGMENT"| "WAIT_FOR_PROMPT"| "ONGOING_PROMPT"| "APPEND_NEXT_SEG"| "WAITING_FOR_NEXT_SEG"| "WAITING_FOR_END"| "END";
+  type appStates =
+    | "LOADING"
+    | "READY"
+    | "INIT_SEGMENT"
+    | "WAIT_FOR_PROMPT"
+    | "ONGOING_PROMPT"
+    | "APPEND_NEXT_SEG"
+    | "WAITING_FOR_NEXT_SEG"
+    | "WAITING_FOR_END"
+    | "END";
 
   // nodes
   let video: HTMLMediaElement;
@@ -35,7 +44,9 @@
     console.log(buffers);
 
     // for future: specify codec in json
-    sourceBuffer = mediaSource.addSourceBuffer('video/webm;codecs="vp9,vorbis"');
+    sourceBuffer = mediaSource.addSourceBuffer(
+      'video/webm;codecs="vp9,vorbis"'
+    );
     sourceBuffer.appendBuffer(buffers.get(currentSegment.files[0])); // TODO: use custom function to append all files
     appState = "READY";
   });
@@ -45,7 +56,9 @@
     video.src = window.URL.createObjectURL(mediaSource);
   });
 
-  $: {console.log(appState)}
+  $: {
+    console.log(appState);
+  }
 
   function start() {
     appState = "INIT_SEGMENT";
@@ -53,26 +66,26 @@
     lastSegmentMark = performance.now();
     video.play();
     loop();
-}
+  }
 
-function loop() {
+  function loop() {
     loopID = window.requestAnimationFrame(loop);
     currentTime = performance.now(); // seconds or miliseconds
     switch (appState) {
       case "INIT_SEGMENT":
         lastTime = currentTime;
         lastSegmentMark = currentTime;
-        
+
         appState = "WAIT_FOR_PROMPT";
         // only set variables if we're not in the first iteration
         if (chosenOption.name === "__empty__") return;
-        
+
         currentSegment = sample.segments.find(
           (s) => s.name === chosenOption.goto
-          );
-        
+        );
+
         if (currentSegment.endIn) appState = "WAITING_FOR_END";
-        console.log('current/next file is', currentSegment.files[0])
+        console.log("current/next file is", currentSegment.files[0]);
         break;
 
       case "WAIT_FOR_PROMPT":
@@ -100,25 +113,23 @@ function loop() {
         if (sourceBuffer.updating || sourceBuffer.buffered.length <= 0) break;
         // Append the video segments and adjust the timestamp offset
         // forward
-        
-        // function addBuffer?
+
         sourceBuffer.timestampOffset = sourceBuffer.buffered.end(
           sourceBuffer.buffered.length - 1
         );
 
-        // TODO: append multiple files
         const nextSegment = sample.segments.find(
           (s) => s.name === chosenOption.goto
         );
 
         if (nextSegment.files[appendThisBufferNumber]) {
-          console.log('appending', nextSegment.files[appendThisBufferNumber])
-          sourceBuffer.appendBuffer(buffers.get(nextSegment.files[appendThisBufferNumber]));
+          console.log("appending", nextSegment.files[appendThisBufferNumber]);
+          sourceBuffer.appendBuffer(
+            buffers.get(nextSegment.files[appendThisBufferNumber])
+          );
           appendThisBufferNumber++;
-          // on append() loop end
-        }
-        else {
-          console.log('done appending')
+        } else {
+          console.log("done appending");
           appendThisBufferNumber = 0;
           appState = "WAITING_FOR_NEXT_SEG";
         }
@@ -130,14 +141,14 @@ function loop() {
         break;
 
       case "WAITING_FOR_END":
-      if (currentTime - lastSegmentMark >= currentSegment.endIn)
-      appState = "END";
-      break; 
-      
+        if (currentTime - lastSegmentMark >= currentSegment.endIn)
+          appState = "END";
+        break;
+
       case "END":
         mediaSource.endOfStream();
-        cancelAnimationFrame(loopID)
-      break;
+        cancelAnimationFrame(loopID);
+        break;
 
       default:
         console.log("unrecognized state: ", appState);
