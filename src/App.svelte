@@ -89,8 +89,7 @@ function loop() {
           console.log("timeout, picking random option");
           chosenOption =
             currentSegment.options[
-            //   Math.floor(Math.random() * currentSegment.options.length)
-            1
+              Math.floor(Math.random() * currentSegment.options.length)
             ];
           appState = "APPEND_NEXT_SEG";
         }
