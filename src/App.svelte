@@ -35,7 +35,7 @@
     console.log(buffers);
 
     // for future: specify codec in json
-    sourceBuffer = mediaSource.addSourceBuffer('video/webm;codecs="vp9,opus"');
+    sourceBuffer = mediaSource.addSourceBuffer('video/webm;codecs="vp9,vorbis"');
     sourceBuffer.appendBuffer(buffers.get(currentSegment.files[0])); // TODO: use custom function to append all files
     appState = "READY";
   });
