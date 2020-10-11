@@ -7,5 +7,5 @@
 
 {#each options as option}
   <button
-    on:click={() => dispatch('chosen', option)}>{option.name}</button>
+    on:click={() => dispatch('choose', option)}>{option.name}</button>
 {/each}

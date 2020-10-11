@@ -176,7 +176,7 @@ espaço pro componente de decisão do prompt
 {#if appState === 'ONGOING_PROMPT'}
   <DecisionPrompt
     options={currentSegment.options}
-    on:chosen={handleChooseOption} />
+    on:choose={handleChooseOption} />
 {/if}
 
 debug:
