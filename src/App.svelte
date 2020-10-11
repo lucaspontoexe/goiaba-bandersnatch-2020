@@ -62,7 +62,7 @@
 
   function handleChooseOption(event: CustomEvent) {
     chosenOption = event.detail;
-    console.log('user has chosen', chosenOption);
+    console.log("user has chosen", chosenOption);
     appState = "APPEND_NEXT_SEG";
   }
 
@@ -88,7 +88,11 @@
           (s) => s.name === chosenOption.goto
         );
 
-        if (currentSegment.endIn) appState = "WAITING_FOR_END";
+        if (currentSegment.isFinal) {
+          appState = "WAITING_FOR_END";
+          mediaSource.endOfStream();
+        }
+        
         console.log("current segment is", currentSegment.name);
         break;
 
@@ -108,7 +112,7 @@
             currentSegment.options[
               Math.floor(Math.random() * currentSegment.options.length)
             ];
-            lastTime = currentTime;
+          lastTime = currentTime;
           appState = "APPEND_NEXT_SEG";
         }
         break;
@@ -146,13 +150,14 @@
         break;
 
       case "WAITING_FOR_END":
-        if (currentTime - lastSegmentMark >= currentSegment.endIn)
-          appState = "END";
+        if (video.ended) appState = "END";
         break;
 
       case "END":
-        mediaSource.endOfStream();
+        // mediaSource.endOfStream();
         cancelAnimationFrame(loopID);
+        console.log('the end.');
+        console.log('%c*shows dialog buttons*', 'font-style: italic;')
         break;
 
       default:
@@ -164,14 +169,14 @@
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <video controls bind:this={video}/>
-{#if appState === 'READY'}
-<button on:click={start}>bora</button>
-{/if}
+{#if appState === 'READY'}<button on:click={start}>bora</button>{/if}
 
 <br />
 espaço pro componente de decisão do prompt
 {#if appState === 'ONGOING_PROMPT'}
-  <DecisionPrompt options={currentSegment.options} on:chosen={handleChooseOption} />
+  <DecisionPrompt
+    options={currentSegment.options}
+    on:chosen={handleChooseOption} />
 {/if}
 
 debug:

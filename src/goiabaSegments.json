@@ -34,9 +34,9 @@
         { "name": "Ignorar", "goto": "final4" }
       ]
     },
-    { "name": "final1", "files": ["seg4a.webm"], "endIn": 10000 },
-    { "name": "final2", "files": ["seg4b.webm"], "endIn": 10000 },
-    { "name": "final3", "files": ["seg4c.webm"], "endIn": 10000 },
-    { "name": "final4", "files": ["seg4d.webm"], "endIn": 10000 }
+    { "name": "final1", "files": ["seg4a.webm"], "isFinal": true },
+    { "name": "final2", "files": ["seg4b.webm"], "isFinal": true },
+    { "name": "final3", "files": ["seg4c.webm"], "isFinal": true },
+    { "name": "final4", "files": ["seg4d.webm"], "isFinal": true }
   ]
 }
