@@ -2,6 +2,7 @@
   import sample from "./goiabaSegments.json";
   import fileDownload from "./fileDownload";
   import { onMount } from "svelte";
+  import DecisionPrompt from "./DecisionPrompt.svelte";
 
   type appStates =
     | "LOADING"
@@ -16,7 +17,6 @@
 
   // nodes
   let video: HTMLMediaElement;
-  let button: HTMLElement;
 
   // globals
   const segmentsFilenames = new Set(sample.segments.map((i) => i.files).flat());
@@ -60,17 +60,21 @@
     console.log(appState);
   }
 
+  function handleChooseOption(event: CustomEvent) {
+    chosenOption = event.detail;
+    console.log('user has chosen', chosenOption);
+    appState = "APPEND_NEXT_SEG";
+  }
+
   function start() {
     appState = "INIT_SEGMENT";
-    lastTime = performance.now();
-    lastSegmentMark = performance.now();
     video.play();
     loop();
   }
 
   function loop() {
     loopID = window.requestAnimationFrame(loop);
-    currentTime = performance.now(); // seconds or miliseconds
+    currentTime = video.currentTime * 1000; // seconds or miliseconds
     switch (appState) {
       case "INIT_SEGMENT":
         lastTime = currentTime;
@@ -85,14 +89,14 @@
         );
 
         if (currentSegment.endIn) appState = "WAITING_FOR_END";
-        console.log("current/next file is", currentSegment.files[0]);
+        console.log("current segment is", currentSegment.name);
         break;
 
       case "WAIT_FOR_PROMPT":
         if (currentTime - lastTime >= currentSegment.promptIn) {
           appState = "ONGOING_PROMPT";
           console.log("decision prompt is here");
-          lastTime = performance.now();
+          lastTime = currentTime;
         }
         break;
 
@@ -104,6 +108,7 @@
             currentSegment.options[
               Math.floor(Math.random() * currentSegment.options.length)
             ];
+            lastTime = currentTime;
           appState = "APPEND_NEXT_SEG";
         }
         break;
@@ -159,8 +164,16 @@
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <video controls bind:this={video}/>
-<button bind:this={button} on:click={start}>bora</button>
+{#if appState === 'READY'}
+<button on:click={start}>bora</button>
+{/if}
+
 <br />
+espaço pro componente de decisão do prompt
+{#if appState === 'ONGOING_PROMPT'}
+  <DecisionPrompt options={currentSegment.options} on:chosen={handleChooseOption} />
+{/if}
+
 debug:
 <br />
 {appState}
