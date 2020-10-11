@@ -176,6 +176,7 @@ espaço pro componente de decisão do prompt
 {#if appState === 'ONGOING_PROMPT'}
   <DecisionPrompt
     options={currentSegment.options}
+    timeout={currentSegment.decisionTimeout}
     on:choose={handleChooseOption} />
 {/if}
 
