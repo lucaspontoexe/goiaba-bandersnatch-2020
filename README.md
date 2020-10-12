@@ -1,3 +1,22 @@
+# goiaba=bandersnatch
+Um [engine?] de branching narratives inspirado no filme do black mirror
+
+## pq
+porque lá a experiência é seamless etc.
+
+## tamo experimentando
+media source extensions
+Map() e Set()
+
+## futuro
+pre-caching (ou carregar na hora mesmo)
+store/conditions
+segmentos sem perguntas
+
+
+
+(original aqui pq pode)
+
 *Looking for a shareable component template? Go here --> [sveltejs/component-template](https://github.com/sveltejs/component-template)*
 
 ---
